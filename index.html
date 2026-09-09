@@ -252,6 +252,18 @@
   }
   .md-close:active { background: var(--paper-warm); color: var(--ink); }
 
+  /* ── 営業カレンダーへのリンク ── */
+  .callink { text-align: center; padding: 18px 20px 0; }
+  .callink a {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: var(--tap-min); padding: 0 22px;
+    border: 1px solid var(--rule); border-radius: 4px;
+    font-size: 0.72rem; font-weight: 300; letter-spacing: 0.1em;
+    color: var(--ink-mid); text-decoration: none;
+    transition: all .18s;
+  }
+  .callink a:active { background: var(--paper-warm); }
+
   /* ── Footer ── */
   .footer {
     text-align: center; padding: 28px 20px 24px;
@@ -289,6 +301,7 @@
     .card:hover { background: var(--paper-warm); }
     .card.nc:hover { background: var(--white); }
     .fb:hover { border-color: var(--ink-mid); color: var(--ink); }
+    .callink a:hover { border-color: var(--ink-mid); color: var(--ink); }
     .md-close:hover { background: var(--paper-warm); color: var(--ink); }
   }
 </style>
@@ -299,6 +312,8 @@
   <h1 class="hero-title">glacemyth</h1>
   <p class="hero-sub">Ice Cream</p>
 </section>
+
+<div class="callink"><a href="calendar.html">営業カレンダー</a></div>
 
 <div class="sticky-header">
   <nav class="sec-filter">

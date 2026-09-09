@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>営業カレンダー｜グラスミス アイスクリーム</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300&family=Noto+Sans+JP:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  /* 商品ページ（index.html）と同じ色・書体をつかう */
+  :root {
+    --ink:        #111111;
+    --ink-mid:    #555555;
+    --ink-light:  #aaaaaa;
+    --paper:      #f6f5f2;
+    --paper-warm: #eeece8;
+    --rule:       #d8d6d2;
+    --closed-bg:  #e4e2de;
+    --white:      #ffffff;
+    --sun:        #a4635e;
+    --sat:        #5e7ba4;
+    --font-serif: 'Cormorant Garamond', 'Hiragino Mincho ProN', serif;
+    --font-sans:  'Noto Sans JP', 'Hiragino Sans', sans-serif;
+    --tap-min:    44px;
+  }
+
+  html { font-size: 16px; scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-weight: 300;
+    min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+    overflow-x: hidden;
+    padding-bottom: env(safe-area-inset-bottom, 32px);
+  }
+
+  /* ── Hero ── */
+  .hero {
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center;
+    padding: 44px 24px 28px;
+    border-bottom: 1px solid var(--ink);
+  }
+  .hero-title {
+    font-family: var(--font-serif);
+    font-size: clamp(2rem, 7vw, 2.8rem); font-weight: 300;
+    letter-spacing: 0.08em; color: var(--ink);
+    line-height: 1.15; margin-bottom: 2px;
+    opacity: 0; animation: fadeIn .7s ease .2s forwards;
+  }
+  .hero-sub {
+    font-family: var(--font-serif);
+    font-size: clamp(1.1rem, 3vw, 1.4rem); font-weight: 300; font-style: italic;
+    letter-spacing: 0.15em; color: var(--ink-mid);
+    margin-top: 4px;
+    opacity: 0; animation: fadeIn .7s ease .4s forwards;
+  }
+  .hero-jp {
+    font-size: 0.7rem; font-weight: 300;
+    letter-spacing: 0.28em; color: var(--ink-mid);
+    margin-top: 14px;
+    opacity: 0; animation: fadeIn .7s ease .6s forwards;
+  }
+
+  /* ── 月おくり ── */
+  .sticky-header {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+  }
+  .nav-month {
+    display: flex; align-items: center; justify-content: center;
+    gap: 4px; padding: 10px 12px;
+  }
+  .nav-btn {
+    min-width: var(--tap-min); min-height: var(--tap-min);
+    display: inline-flex; align-items: center; justify-content: center;
+    border: 1px solid var(--rule); border-radius: 4px;
+    background: none; color: var(--ink-mid);
+    font-size: 0.8rem; cursor: pointer; transition: all .18s;
+    -webkit-appearance: none;
+  }
+  .nav-btn:disabled { opacity: .28; cursor: default; }
+  .nav-btn:not(:disabled):active { background: var(--paper-warm); }
+  .nav-now {
+    min-width: 9.5em; text-align: center;
+    font-family: var(--font-serif);
+    font-size: 1.15rem; font-weight: 400;
+    letter-spacing: 0.08em; color: var(--ink);
+  }
+  .nav-now .y { font-size: 0.72rem; color: var(--ink-mid); letter-spacing: 0.14em; }
+
+  /* ── カレンダー ── */
+  .sec-cal { max-width: 640px; margin: 0 auto; padding: 26px 12px 40px; }
+
+  .dow {
+    display: grid; grid-template-columns: repeat(7, 1fr);
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 7px; margin-bottom: 6px;
+  }
+  .dow span {
+    text-align: center;
+    font-size: 0.66rem; font-weight: 400;
+    letter-spacing: 0.1em; color: var(--ink-mid);
+  }
+  .dow span.s0 { color: var(--sun); }
+  .dow span.s6 { color: var(--sat); }
+
+  .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+
+  .cell {
+    min-height: 62px;
+    border: 1px solid var(--rule);
+    border-radius: 3px;
+    background: var(--white);
+    padding: 4px 2px 5px;
+    display: flex; flex-direction: column; align-items: center;
+    overflow: hidden;
+  }
+  .cell.blank { border: none; background: none; }
+
+  .cell .d {
+    font-family: var(--font-serif);
+    font-size: 0.92rem; font-weight: 400;
+    line-height: 1.1; color: var(--ink);
+  }
+  .cell.s0 .d { color: var(--sun); }
+  .cell.s6 .d { color: var(--sat); }
+
+  .cell .t {
+    margin-top: 3px;
+    font-size: 0.5rem; font-weight: 300;
+    line-height: 1.35; letter-spacing: 0.02em;
+    color: var(--ink-mid); text-align: center;
+    word-break: keep-all;
+  }
+
+  /* お休みの日 */
+  .cell.closed { background: var(--closed-bg); border-color: var(--closed-bg); }
+  .cell.closed .d { color: var(--ink-light); }
+  .cell.closed .t { color: var(--ink-light); }
+
+  /* きょう */
+  .cell.today { border: 1px solid var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+
+  /* ── しるしの説明 ── */
+  .legend {
+    display: flex; justify-content: center; flex-wrap: wrap;
+    gap: 18px; margin-top: 22px;
+    font-size: 0.68rem; font-weight: 300;
+    color: var(--ink-mid); letter-spacing: 0.06em;
+  }
+  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend i {
+    width: 13px; height: 13px; border-radius: 2px;
+    border: 1px solid var(--rule); background: var(--white);
+    display: inline-block;
+  }
+  .legend i.c { background: var(--closed-bg); border-color: var(--closed-bg); }
+  .legend i.t { background: var(--white); border-color: var(--ink); }
+
+  /* ── 下のリンク ── */
+  .backlink { text-align: center; margin-top: 34px; }
+  .backlink a {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-height: var(--tap-min); padding: 0 22px;
+    border: 1px solid var(--rule); border-radius: 4px;
+    font-size: 0.72rem; font-weight: 300; letter-spacing: 0.1em;
+    color: var(--ink-mid); text-decoration: none;
+    transition: all .18s;
+  }
+  .backlink a:active { background: var(--paper-warm); }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center; padding: 28px 20px 24px;
+    font-size: 0.62rem; font-weight: 300;
+    color: var(--ink-light); letter-spacing: 0.08em;
+    border-top: 1px solid var(--ink);
+    max-width: 640px; margin: 34px auto 0;
+  }
+  .footer .upd { display: block; margin-top: 6px; }
+
+  .empty {
+    text-align: center; padding: 80px 0;
+    color: var(--ink-light); font-size: 0.82rem; font-weight: 300;
+    letter-spacing: 0.08em;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── パソコン ── */
+  @media (min-width: 768px) {
+    .hero { padding: 52px 40px 32px; }
+    .sec-cal { padding: 34px 40px 48px; }
+    .cell { min-height: 84px; padding: 7px 4px 8px; }
+    .cell .d { font-size: 1.05rem; }
+    .cell .t { font-size: 0.64rem; margin-top: 5px; }
+    .dow span { font-size: 0.72rem; }
+    .nav-btn:hover:not(:disabled) { border-color: var(--ink-mid); color: var(--ink); }
+    .backlink a:hover { border-color: var(--ink-mid); color: var(--ink); }
+  }
+</style>
+</head>
+<body>
+
+<section class="hero">
+  <h1 class="hero-title">glacemyth</h1>
+  <p class="hero-sub">Ice Cream</p>
+  <p class="hero-jp">営業カレンダー</p>
+</section>
+
+<div class="sticky-header">
+  <div class="nav-month">
+    <button class="nav-btn" id="prev" aria-label="前の月">&#9664;</button>
+    <div class="nav-now" id="now">&nbsp;</div>
+    <button class="nav-btn" id="next" aria-label="次の月">&#9654;</button>
+  </div>
+</div>
+
+<div class="sec-cal" id="calArea">
+  <div class="empty">読み込み中...</div>
+</div>
+
+<div class="footer" id="footer" style="display:none">
+  &copy; glacemyth Ice Cream
+  <span class="upd" id="upd"></span>
+</div>
+
+<script>
+/* ============================================================
+   営業カレンダー
+     calendar_data.json をよむ。中身のかたち：
+       { "shop": { "name": "...", "updated": "2026-09-09" },
+         "months": [
+           { "year": 2026, "month": 4,
+             "days": [ { "date":"2026-04-01",
+                         "closed":false,
+                         "label":"11:00 - 18:00" }, ... ] }, ... ] }
+     この JSON は Excel の
+       アイスシステム.xlsm ! カレンダーをGitHubへ送信
+     が書き出しています。
+   ============================================================ */
+
+var MONTHS = [];      /* 月のはいった配列 */
+var POS    = 0;       /* いま見ている月の番号 */
+
+var DOW = ['日','月','火','水','木','金','土'];
+
+/* 画面に出す文字はそのまま埋め込まず、記号を逃がしてから出す */
+function escHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+                  .replace(/"/g,'&quot;');
+}
+
+/* "2026-09-09" のような文字を Date にする（時差でずれないように分けて渡す）*/
+function toDate(s){
+  var p = String(s).split('-');
+  return new Date(+p[0], +p[1] - 1, +p[2]);
+}
+
+/* きょうの日付を "YYYY-MM-DD" で */
+function todayKey(){
+  var d = new Date();
+  var m = ('0' + (d.getMonth() + 1)).slice(-2);
+  var y = ('0' + d.getDate()).slice(-2);
+  return d.getFullYear() + '-' + m + '-' + y;
+}
+
+/* 「11:00 - 18:00」を2行にして、せまい画面でも読めるようにする */
+function timeHtml(label){
+  var s = String(label).trim();
+  if (s === '') return '';
+  if (s.toLowerCase() === 'closed') return '休';
+  var m = s.split(/\s*[-–~〜]\s*/);
+  if (m.length === 2) return escHtml(m[0]) + '<br>' + escHtml(m[1]);
+  return escHtml(s);
+}
+
+/* 月をひとつ描く */
+function draw(){
+  if (MONTHS.length === 0) {
+    document.getElementById('calArea').innerHTML =
+      '<div class="empty">カレンダーのデータがありません</div>';
+    return;
+  }
+
+  var mo = MONTHS[POS];
+
+  document.getElementById('now').innerHTML =
+    '<span class="y">' + mo.year + '</span>　' + mo.month + '月';
+
+  document.getElementById('prev').disabled = (POS <= 0);
+  document.getElementById('next').disabled = (POS >= MONTHS.length - 1);
+
+  /* 日にち → その日のデータ、の対応をつくる */
+  var byDay = {};
+  for (var i = 0; i < mo.days.length; i++) {
+    var d = mo.days[i];
+    byDay[toDate(d.date).getDate()] = d;
+  }
+
+  var atama = new Date(mo.year, mo.month - 1, 1).getDay();     /* 1日の曜日 */
+  var kazu  = new Date(mo.year, mo.month, 0).getDate();        /* その月の日数 */
+  var kyou  = todayKey();
+
+  var h = '<div class="dow">';
+  for (var w = 0; w < 7; w++) {
+    h += '<span class="s' + w + '">' + DOW[w] + '</span>';
+  }
+  h += '</div><div class="grid">';
+
+  /* 1日より前のあき */
+  for (var b = 0; b < atama; b++) h += '<div class="cell blank"></div>';
+
+  for (var day = 1; day <= kazu; day++) {
+    var rec  = byDay[day];
+    var yobi = new Date(mo.year, mo.month - 1, day).getDay();
+
+    var cls = 'cell s' + yobi;
+    if (rec && rec.closed) cls += ' closed';
+
+    var key = mo.year + '-' + ('0' + mo.month).slice(-2) + '-' + ('0' + day).slice(-2);
+    if (key === kyou) cls += ' today';
+
+    h += '<div class="' + cls + '">'
+       +   '<div class="d">' + day + '</div>'
+       +   '<div class="t">' + (rec ? timeHtml(rec.label) : '') + '</div>'
+       + '</div>';
+  }
+
+  h += '</div>';
+
+  h += '<div class="legend">'
+     +   '<span><i></i>営業日</span>'
+     +   '<span><i class="c"></i>お休み</span>'
+     +   '<span><i class="t"></i>本日</span>'
+     + '</div>';
+
+  h += '<div class="backlink"><a href="./">商品一覧へ</a></div>';
+
+  document.getElementById('calArea').innerHTML = h;
+}
+
+/* きょうの月を出す。無ければいちばん近い月 */
+function hajimeNoTsuki(){
+  var d = new Date();
+  var ima = d.getFullYear() * 12 + d.getMonth();
+  var chikai = 0, sa = 1e9;
+  for (var i = 0; i < MONTHS.length; i++) {
+    var v = MONTHS[i].year * 12 + (MONTHS[i].month - 1);
+    var t = Math.abs(v - ima);
+    if (v === ima) return i;
+    if (t < sa) { sa = t; chikai = i; }
+  }
+  return chikai;
+}
+
+document.getElementById('prev').onclick = function(){ if (POS > 0) { POS--; draw(); window.scrollTo(0,0); } };
+document.getElementById('next').onclick = function(){ if (POS < MONTHS.length - 1) { POS++; draw(); window.scrollTo(0,0); } };
+
+(async function(){
+  try {
+    var r = await fetch('calendar_data.json?t=' + Date.now());
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    var j = await r.json();
+
+    MONTHS = (j && j.months) ? j.months : [];
+    POS = hajimeNoTsuki();
+    draw();
+
+    var f = document.getElementById('footer');
+    if (j && j.shop && j.shop.updated) {
+      document.getElementById('upd').textContent = '更新日 ' + j.shop.updated;
+    }
+    f.style.display = 'block';
+
+  } catch (e) {
+    document.getElementById('calArea').innerHTML =
+      '<div class="empty">calendar_data.json が読み込めません</div>'
+      + '<div class="backlink"><a href="./">商品一覧へ</a></div>';
+    document.getElementById('now').textContent = '';
+  }
+})();
+</script>
+
+</body>
+</html>

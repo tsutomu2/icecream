@@ -153,6 +153,14 @@
     white-space: nowrap;
   }
   .cell .t.kyu { font-size: 0.68rem; margin-top: 4px; }
+  /* 時刻ではない書き込み（「夕方から 配達OK」など）。
+     はみ出さないよう 折り返しあり・小さめにする */
+  .cell .t.memo {
+    white-space: normal;
+    font-size: 0.46rem; line-height: 1.25;
+    letter-spacing: -0.02em; word-break: break-word;
+    padding: 0 1px;
+  }
 
   /* お休みの日 */
   .cell.closed { background: var(--closed-bg); border-color: var(--closed-bg); }
@@ -225,6 +233,7 @@
     .cell .d { font-size: 1.1rem; }
     .cell .t { font-size: 0.62rem; margin-top: 4px; }
     .cell .t.kyu { font-size: 0.74rem; }
+    .cell .t.memo { font-size: 0.56rem; }
     .dow span { font-size: 0.72rem; }
     .mb:hover:not(.on) { border-color: var(--ink-mid); color: var(--ink); }
     .backlink a:hover { border-color: var(--ink-mid); color: var(--ink); }
@@ -299,16 +308,27 @@ function todayKey(){
   return d.getFullYear() + '-' + m + '-' + y;
 }
 
-/* 「11:00 - 18:00」を2段にして、せまい画面でも読めるようにする */
+/* マスの中の文字をつくる
+     ・closed            → 「休」
+     ・「11:00 - 18:00」 → 2段（時刻が途中で折れないよう nowrap のまま）
+     ・そのほか          → 書いてあるまま。エクセルのセル内改行もそのまま改行にする。
+                           長いことがあるので、折り返しありの小さい字にする  */
 function timeHtml(label){
-  var s = String(label).trim();
+  var s = String(label).replace(/\r\n|\r/g, '\n').trim();
   if (s === '') return '';
   if (s.toLowerCase() === 'closed') return '<span class="t kyu">休</span>';
-  var m = s.split(/\s*[-–~〜]\s*/);
-  if (m.length === 2) {
-    return '<span class="t">' + escHtml(m[0]) + '<br>' + escHtml(m[1]) + '</span>';
+
+  if (s.indexOf('\n') < 0) {
+    var m = s.split(/\s*[-–~〜]\s*/);
+    if (m.length === 2 &&
+        /^\d{1,2}:\d{2}$/.test(m[0]) && /^\d{1,2}:\d{2}$/.test(m[1])) {
+      return '<span class="t">' + escHtml(m[0]) + '<br>' + escHtml(m[1]) + '</span>';
+    }
   }
-  return '<span class="t">' + escHtml(s) + '</span>';
+
+  var gyou = s.split('\n');
+  for (var i = 0; i < gyou.length; i++) gyou[i] = escHtml(gyou[i]);
+  return '<span class="t memo">' + gyou.join('<br>') + '</span>';
 }
 
 /* 出す月をえらぶ ─ 当月と来月 */

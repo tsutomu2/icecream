@@ -125,8 +125,9 @@
   .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
 
   .cell {
-    aspect-ratio: 5 / 6;
-    min-height: 58px;
+    /* 高さは決め打ちにしない。min-height を下限にして、
+       中身が多い日は行ごと伸びるようにする（切れないため）*/
+    min-height: 64px;
     border: 1px solid var(--rule);
     border-radius: 3px;
     background: var(--white);
@@ -151,6 +152,14 @@
     line-height: 1.3; letter-spacing: -0.01em;
     color: var(--ink-mid); text-align: center;
     white-space: nowrap;
+  }
+  /* 時刻は 開始 ▽ 終了 の3段。段ごとに高さを決めたいので、
+     <br> ではなく それぞれを block にしている */
+  .cell .t .tm  { display: block; line-height: 1.1; }
+  .cell .t .sep {
+    display: block;
+    font-size: 0.42rem; line-height: 0.9;
+    color: var(--ink-light);
   }
   .cell .t.kyu { font-size: 0.68rem; margin-top: 4px; }
   /* 時刻ではない書き込み（「夕方から 配達OK」など）。
@@ -216,9 +225,10 @@
 
   /* ── 小さいスマホ（iPhone SE など）── */
   @media (max-width: 359px) {
-    .cell { min-height: 52px; padding: 2px 0 3px; }
+    .cell { min-height: 56px; padding: 2px 0 3px; }
     .cell .d { font-size: 0.9rem; }
     .cell .t { font-size: 0.5rem; }
+    .cell .t .sep { font-size: 0.38rem; }
     .sec-cal { padding: 16px 6px 24px; }
     .grid { gap: 2px; }
   }
@@ -232,6 +242,7 @@
     .cell { min-height: 76px; padding: 6px 3px 7px; }
     .cell .d { font-size: 1.1rem; }
     .cell .t { font-size: 0.62rem; margin-top: 4px; }
+    .cell .t .sep { font-size: 0.5rem; }
     .cell .t.kyu { font-size: 0.74rem; }
     .cell .t.memo { font-size: 0.56rem; }
     .dow span { font-size: 0.72rem; }
@@ -322,7 +333,11 @@ function timeHtml(label){
     var m = s.split(/\s*[-–~〜]\s*/);
     if (m.length === 2 &&
         /^\d{1,2}:\d{2}$/.test(m[0]) && /^\d{1,2}:\d{2}$/.test(m[1])) {
-      return '<span class="t">' + escHtml(m[0]) + '<br>' + escHtml(m[1]) + '</span>';
+      return '<span class="t">'
+           +   '<span class="tm">'  + escHtml(m[0]) + '</span>'
+           +   '<span class="sep">▽</span>'
+           +   '<span class="tm">'  + escHtml(m[1]) + '</span>'
+           + '</span>';
     }
   }
 

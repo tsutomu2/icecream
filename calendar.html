@@ -2,9 +2,10 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f6f5f2">
 <title>営業カレンダー｜グラスミス アイスクリーム</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -29,7 +30,7 @@
     --tap-min:    44px;
   }
 
-  html { font-size: 16px; scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+  html { font-size: 16px; -webkit-text-size-adjust: 100%; }
 
   body {
     background: var(--paper);
@@ -40,63 +41,83 @@
     -webkit-font-smoothing: antialiased;
     -webkit-tap-highlight-color: transparent;
     overflow-x: hidden;
-    padding-bottom: env(safe-area-inset-bottom, 32px);
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 24px);
   }
 
-  /* ── Hero ── */
+  /* ── Hero（スマホでは低くして、カレンダーを早く見せる）── */
   .hero {
     display: flex; flex-direction: column;
     align-items: center; justify-content: center; text-align: center;
-    padding: 44px 24px 28px;
+    padding: 26px 20px 18px;
     border-bottom: 1px solid var(--ink);
   }
   .hero-title {
     font-family: var(--font-serif);
-    font-size: clamp(2rem, 7vw, 2.8rem); font-weight: 300;
-    letter-spacing: 0.08em; color: var(--ink);
-    line-height: 1.15; margin-bottom: 2px;
-    opacity: 0; animation: fadeIn .7s ease .2s forwards;
+    font-size: clamp(1.7rem, 6.5vw, 2.8rem); font-weight: 300;
+    letter-spacing: 0.08em; color: var(--ink); line-height: 1.1;
   }
   .hero-sub {
     font-family: var(--font-serif);
-    font-size: clamp(1.1rem, 3vw, 1.4rem); font-weight: 300; font-style: italic;
-    letter-spacing: 0.15em; color: var(--ink-mid);
-    margin-top: 4px;
-    opacity: 0; animation: fadeIn .7s ease .4s forwards;
+    font-size: clamp(0.95rem, 3vw, 1.4rem); font-weight: 300; font-style: italic;
+    letter-spacing: 0.15em; color: var(--ink-mid); margin-top: 2px;
   }
   .hero-jp {
-    font-size: 0.7rem; font-weight: 300;
-    letter-spacing: 0.28em; color: var(--ink-mid);
-    margin-top: 14px;
-    opacity: 0; animation: fadeIn .7s ease .6s forwards;
+    font-size: 0.64rem; font-weight: 300;
+    letter-spacing: 0.26em; color: var(--ink-mid); margin-top: 10px;
   }
 
-  /* ── カレンダー ── */
-  .sec-cal { max-width: 640px; margin: 0 auto; padding: 30px 12px 40px; }
+  /* ── 月を切り替えるボタン（上に貼りつく）── */
+  .switch-bar {
+    position: sticky; top: 0; z-index: 50;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+    padding: 10px 12px;
+  }
+  .switch {
+    display: flex; gap: 8px; justify-content: center;
+    max-width: 420px; margin: 0 auto;
+  }
+  .mb {
+    flex: 1 1 0;
+    min-height: var(--tap-min);
+    display: inline-flex; align-items: center; justify-content: center;
+    gap: 6px;
+    border: 1px solid var(--rule); border-radius: 4px;
+    background: none; color: var(--ink-mid);
+    font-family: var(--font-sans);
+    font-size: 0.82rem; font-weight: 300; letter-spacing: 0.06em;
+    cursor: pointer; transition: all .18s;
+    -webkit-appearance: none;
+  }
+  .mb .lead { font-size: 0.6rem; letter-spacing: 0.1em; opacity: .75; }
+  .mb:not(.on):active { background: var(--paper-warm); }
+  .mb.on { background: var(--ink); color: #fff; border-color: var(--ink); }
+  .mb.on .lead { opacity: .7; }
 
-  .month { margin-bottom: 38px; }
+  /* ── カレンダー ── */
+  .sec-cal { max-width: 560px; margin: 0 auto; padding: 18px 10px 28px; }
 
   .m-head {
     text-align: center;
     font-family: var(--font-serif);
-    font-size: 1.25rem; font-weight: 400;
+    font-size: 1.3rem; font-weight: 400;
     letter-spacing: 0.08em; color: var(--ink);
     padding-bottom: 12px;
   }
   .m-head .y {
-    font-size: 0.72rem; color: var(--ink-mid);
+    font-size: 0.7rem; color: var(--ink-mid);
     letter-spacing: 0.14em; margin-right: 6px;
   }
 
   .dow {
     display: grid; grid-template-columns: repeat(7, 1fr);
     border-bottom: 1px solid var(--ink);
-    padding-bottom: 7px; margin-bottom: 6px;
+    padding-bottom: 6px; margin-bottom: 5px;
   }
   .dow span {
     text-align: center;
-    font-size: 0.66rem; font-weight: 400;
-    letter-spacing: 0.1em; color: var(--ink-mid);
+    font-size: 0.68rem; font-weight: 400;
+    letter-spacing: 0.06em; color: var(--ink-mid);
   }
   .dow span.s0 { color: var(--sun); }
   .dow span.s6 { color: var(--sat); }
@@ -104,31 +125,34 @@
   .grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
 
   .cell {
-    min-height: 62px;
+    aspect-ratio: 5 / 6;
+    min-height: 58px;
     border: 1px solid var(--rule);
     border-radius: 3px;
     background: var(--white);
-    padding: 4px 2px 5px;
-    display: flex; flex-direction: column; align-items: center;
+    padding: 3px 1px 4px;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: flex-start;
     overflow: hidden;
   }
   .cell.blank { border: none; background: none; }
 
   .cell .d {
     font-family: var(--font-serif);
-    font-size: 0.92rem; font-weight: 400;
-    line-height: 1.1; color: var(--ink);
+    font-size: 1rem; font-weight: 400;
+    line-height: 1.05; color: var(--ink);
   }
   .cell.s0 .d { color: var(--sun); }
   .cell.s6 .d { color: var(--sat); }
 
   .cell .t {
-    margin-top: 3px;
-    font-size: 0.5rem; font-weight: 300;
-    line-height: 1.35; letter-spacing: 0.02em;
+    margin-top: 2px;
+    font-size: 0.55rem; font-weight: 300;
+    line-height: 1.3; letter-spacing: -0.01em;
     color: var(--ink-mid); text-align: center;
-    word-break: keep-all;
+    white-space: nowrap;
   }
+  .cell .t.kyu { font-size: 0.68rem; margin-top: 4px; }
 
   /* お休みの日 */
   .cell.closed { background: var(--closed-bg); border-color: var(--closed-bg); }
@@ -136,31 +160,31 @@
   .cell.closed .t { color: var(--ink-light); }
 
   /* きょう */
-  .cell.today { border: 1px solid var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
+  .cell.today { border-color: var(--ink); box-shadow: inset 0 0 0 1px var(--ink); }
 
   /* ── しるしの説明 ── */
   .legend {
     display: flex; justify-content: center; flex-wrap: wrap;
-    gap: 18px; margin-top: 6px;
-    font-size: 0.68rem; font-weight: 300;
-    color: var(--ink-mid); letter-spacing: 0.06em;
+    gap: 14px; margin-top: 18px;
+    font-size: 0.66rem; font-weight: 300;
+    color: var(--ink-mid); letter-spacing: 0.04em;
   }
-  .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
   .legend i {
-    width: 13px; height: 13px; border-radius: 2px;
+    width: 12px; height: 12px; border-radius: 2px;
     border: 1px solid var(--rule); background: var(--white);
-    display: inline-block;
+    display: inline-block; flex-shrink: 0;
   }
   .legend i.c { background: var(--closed-bg); border-color: var(--closed-bg); }
   .legend i.t { background: var(--white); border-color: var(--ink); }
 
   /* ── 下のリンク ── */
-  .backlink { text-align: center; margin-top: 34px; }
+  .backlink { text-align: center; margin-top: 26px; }
   .backlink a {
     display: inline-flex; align-items: center; justify-content: center;
-    min-height: var(--tap-min); padding: 0 22px;
+    min-height: var(--tap-min); padding: 0 24px;
     border: 1px solid var(--rule); border-radius: 4px;
-    font-size: 0.72rem; font-weight: 300; letter-spacing: 0.1em;
+    font-size: 0.74rem; font-weight: 300; letter-spacing: 0.1em;
     color: var(--ink-mid); text-decoration: none;
     transition: all .18s;
   }
@@ -168,39 +192,41 @@
 
   /* ── Footer ── */
   .footer {
-    text-align: center; padding: 28px 20px 24px;
-    font-size: 0.62rem; font-weight: 300;
+    text-align: center; padding: 22px 20px 18px;
+    font-size: 0.6rem; font-weight: 300;
     color: var(--ink-light); letter-spacing: 0.08em;
     border-top: 1px solid var(--ink);
-    max-width: 640px; margin: 34px auto 0;
+    max-width: 560px; margin: 26px auto 0;
   }
-  .footer .upd { display: block; margin-top: 6px; }
+  .footer .upd { display: block; margin-top: 5px; }
 
   .empty {
-    text-align: center; padding: 80px 0;
+    text-align: center; padding: 60px 0;
     color: var(--ink-light); font-size: 0.82rem; font-weight: 300;
     letter-spacing: 0.08em;
   }
 
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(4px); }
-    to   { opacity: 1; transform: translateY(0); }
+  /* ── 小さいスマホ（iPhone SE など）── */
+  @media (max-width: 359px) {
+    .cell { min-height: 52px; padding: 2px 0 3px; }
+    .cell .d { font-size: 0.9rem; }
+    .cell .t { font-size: 0.5rem; }
+    .sec-cal { padding: 16px 6px 24px; }
+    .grid { gap: 2px; }
   }
 
-  /* ── パソコン：2か月を横に並べる ── */
+  /* ── パソコン ── */
   @media (min-width: 768px) {
-    .hero { padding: 52px 40px 32px; }
-    .sec-cal { max-width: 900px; padding: 40px 40px 48px; }
-    .months {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 36px;
-      align-items: start;
-    }
-    .month { margin-bottom: 0; }
-    .cell { min-height: 74px; padding: 6px 3px 7px; }
-    .cell .d { font-size: 1rem; }
-    .cell .t { font-size: 0.58rem; margin-top: 4px; }
-    .dow span { font-size: 0.7rem; }
-    .legend { margin-top: 30px; }
+    .hero { padding: 48px 40px 30px; }
+    .hero-jp { font-size: 0.7rem; margin-top: 14px; }
+    .switch-bar { padding: 12px 40px; }
+    .sec-cal { max-width: 620px; padding: 30px 40px 40px; }
+    .cell { min-height: 76px; padding: 6px 3px 7px; }
+    .cell .d { font-size: 1.1rem; }
+    .cell .t { font-size: 0.62rem; margin-top: 4px; }
+    .cell .t.kyu { font-size: 0.74rem; }
+    .dow span { font-size: 0.72rem; }
+    .mb:hover:not(.on) { border-color: var(--ink-mid); color: var(--ink); }
     .backlink a:hover { border-color: var(--ink-mid); color: var(--ink); }
   }
 </style>
@@ -213,6 +239,10 @@
   <p class="hero-jp">営業カレンダー</p>
 </section>
 
+<div class="switch-bar">
+  <div class="switch" id="switch"></div>
+</div>
+
 <div class="sec-cal" id="calArea">
   <div class="empty">読み込み中...</div>
 </div>
@@ -224,7 +254,7 @@
 
 <script>
 /* ============================================================
-   営業カレンダー（当月と来月だけ）
+   営業カレンダー（当月と来月。ボタンで切り替え）
 
      calendar_data.json をよむ。中身のかたち：
        { "shop": { "name": "...", "updated": "2026-09-09" },
@@ -237,13 +267,17 @@
      この JSON は Excel の
        アイスシステム.xlsm ! カレンダーをGitHubへ送信
      が書き出しています。ずっと先の月まで入っていますが、
-     この画面は 当月と来月の2つだけ を出します。
+     この画面は 当月と来月の2つ しか出しません。
 
-     ★ 当月・来月がデータに無いときは、
-       いちばん近い先の月から2つ出します（何も出ないのを防ぐため）。
+   ★ スマホで見ることを先に考えたつくり
+       ・見出しを低くして、カレンダーを早く見せる
+       ・切り替えボタンは上に貼りつく（指の届く高さ44px）
+       ・1マスは正方形に近い形。時間は1行ずつ2段で入れる
    ============================================================ */
 
-var DOW = ['日','月','火','水','木','金','土'];
+var DOW  = ['日','月','火','水','木','金','土'];
+var DERU = [];        /* 出す月（多くて2つ）*/
+var POS  = 0;         /* いま見ている番号 */
 
 /* 画面に出す文字はそのまま埋め込まず、記号を逃がしてから出す */
 function escHtml(s){
@@ -265,24 +299,25 @@ function todayKey(){
   return d.getFullYear() + '-' + m + '-' + y;
 }
 
-/* 「11:00 - 18:00」を2行にして、せまい画面でも読めるようにする */
+/* 「11:00 - 18:00」を2段にして、せまい画面でも読めるようにする */
 function timeHtml(label){
   var s = String(label).trim();
   if (s === '') return '';
-  if (s.toLowerCase() === 'closed') return '休';
+  if (s.toLowerCase() === 'closed') return '<span class="t kyu">休</span>';
   var m = s.split(/\s*[-–~〜]\s*/);
-  if (m.length === 2) return escHtml(m[0]) + '<br>' + escHtml(m[1]);
-  return escHtml(s);
+  if (m.length === 2) {
+    return '<span class="t">' + escHtml(m[0]) + '<br>' + escHtml(m[1]) + '</span>';
+  }
+  return '<span class="t">' + escHtml(s) + '</span>';
 }
 
-/* 出す月を2つえらぶ ─ 当月と来月 */
+/* 出す月をえらぶ ─ 当月と来月 */
 function deruTsuki(months){
   var d  = new Date();
   var im = d.getFullYear() * 12 + d.getMonth();      /* 当月を通し番号に */
 
   function ban(mo){ return mo.year * 12 + (mo.month - 1); }
 
-  /* 当月と来月がそのままあれば、それを出す */
   var deru = [];
   for (var i = 0; i < months.length; i++) {
     var b = ban(months[i]);
@@ -290,32 +325,68 @@ function deruTsuki(months){
   }
   if (deru.length > 0) return deru;
 
-  /* 無ければ、いちばん近い先の月から2つ */
+  /* 当月・来月がデータに無ければ、いちばん近い先の月から2つ */
   var saki = [];
   for (var j = 0; j < months.length; j++) {
     if (ban(months[j]) > im) saki.push(months[j]);
   }
   if (saki.length > 0) return saki.slice(0, 2);
 
-  /* 先も無ければ、いちばん新しい2つ */
   return months.slice(-2);
 }
 
-/* 月をひとつ描く */
-function tsukiHtml(mo){
+/* 切り替えボタンを作る */
+function drawSwitch(){
+  var d  = new Date();
+  var im = d.getFullYear() * 12 + d.getMonth();
+
+  var h = '';
+  for (var i = 0; i < DERU.length; i++) {
+    var mo = DERU[i];
+    var b  = mo.year * 12 + (mo.month - 1);
+    var lead = (b === im) ? '今月' : (b === im + 1 ? '来月' : '');
+
+    h += '<button class="mb' + (i === POS ? ' on' : '') + '" data-i="' + i + '">'
+       +   (lead ? '<span class="lead">' + lead + '</span>' : '')
+       +   mo.month + '月'
+       + '</button>';
+  }
+  var sw = document.getElementById('switch');
+  sw.innerHTML = h;
+
+  var btns = sw.getElementsByTagName('button');
+  for (var k = 0; k < btns.length; k++) {
+    btns[k].onclick = function(){
+      POS = +this.getAttribute('data-i');
+      drawSwitch();
+      drawMonth();
+    };
+  }
+}
+
+/* いま選んでいる月を描く */
+function drawMonth(){
+  if (DERU.length === 0) {
+    document.getElementById('calArea').innerHTML =
+      '<div class="empty">カレンダーのデータがありません</div>'
+      + '<div class="backlink"><a href="./">商品一覧へ</a></div>';
+    return;
+  }
+
+  var mo = DERU[POS];
+
   /* 日にち → その日のデータ、の対応をつくる */
   var byDay = {};
   for (var i = 0; i < mo.days.length; i++) {
-    var d = mo.days[i];
-    byDay[toDate(d.date).getDate()] = d;
+    var dd = mo.days[i];
+    byDay[toDate(dd.date).getDate()] = dd;
   }
 
   var atama = new Date(mo.year, mo.month - 1, 1).getDay();     /* 1日の曜日 */
   var kazu  = new Date(mo.year, mo.month, 0).getDate();        /* その月の日数 */
   var kyou  = todayKey();
 
-  var h = '<div class="month">';
-  h += '<div class="m-head"><span class="y">' + mo.year + '</span>' + mo.month + '月</div>';
+  var h = '<div class="m-head"><span class="y">' + mo.year + '</span>' + mo.month + '月</div>';
 
   h += '<div class="dow">';
   for (var w = 0; w < 7; w++) h += '<span class="s' + w + '">' + DOW[w] + '</span>';
@@ -336,24 +407,10 @@ function tsukiHtml(mo){
 
     h += '<div class="' + cls + '">'
        +   '<div class="d">' + day + '</div>'
-       +   '<div class="t">' + (rec ? timeHtml(rec.label) : '') + '</div>'
+       +   (rec ? timeHtml(rec.label) : '')
        + '</div>';
   }
 
-  h += '</div></div>';
-  return h;
-}
-
-function draw(months){
-  if (!months || months.length === 0) {
-    document.getElementById('calArea').innerHTML =
-      '<div class="empty">カレンダーのデータがありません</div>'
-      + '<div class="backlink"><a href="./">商品一覧へ</a></div>';
-    return;
-  }
-
-  var h = '<div class="months">';
-  for (var i = 0; i < months.length; i++) h += tsukiHtml(months[i]);
   h += '</div>';
 
   h += '<div class="legend">'
@@ -373,8 +430,11 @@ function draw(months){
     if (!r.ok) throw new Error('HTTP ' + r.status);
     var j = await r.json();
 
-    var all = (j && j.months) ? j.months : [];
-    draw(deruTsuki(all));
+    DERU = deruTsuki((j && j.months) ? j.months : []);
+    POS  = 0;                       /* さいしょは当月 */
+
+    drawSwitch();
+    drawMonth();
 
     if (j && j.shop && j.shop.updated) {
       document.getElementById('upd').textContent = '更新日 ' + j.shop.updated;
